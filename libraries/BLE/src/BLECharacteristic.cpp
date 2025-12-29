@@ -941,6 +941,7 @@ void BLECharacteristic::processDeferredWriteCallback(void *pvParameters) {
   }
 
   // Call the onWrite callback now that the response has been transmitted
+  pCallback->pCharacteristic->setValue(pCallback->buf, pCallback->len);
   pCallback->pCharacteristic->m_pCallbacks->onWrite(pCallback->pCharacteristic, &pCallback->desc);
 
   // Free the allocated memory
@@ -1000,7 +1001,6 @@ int BLECharacteristic::handleGATTServerEvent(uint16_t conn_handle, uint16_t attr
         }
         rc = ble_gap_conn_find(conn_handle, &desc);
         assert(rc == 0);
-        pCharacteristic->setValue(buf, len);
 
         // Defer the onWrite callback to maintain backwards compatibility with Bluedroid.
         // In Bluedroid, the write response is sent BEFORE the onWrite callback is invoked.
@@ -1012,6 +1012,8 @@ int BLECharacteristic::handleGATTServerEvent(uint16_t conn_handle, uint16_t attr
         pCallback->pCharacteristic = pCharacteristic;
         pCallback->desc = desc;
         pCallback->conn_handle = conn_handle;
+        pCallback->len = len;
+        memcpy(pCallback->buf, buf, len);
 
         // Create a one-shot task to execute the callback after the response is transmitted
         // Using priority 1 (low priority) and sufficient stack for callback operations

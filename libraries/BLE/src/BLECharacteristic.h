@@ -254,6 +254,8 @@ private:
     BLECharacteristic *pCharacteristic;
     ble_gap_conn_desc desc;
     uint16_t conn_handle;
+    uint8_t buf[BLE_ATT_ATTR_MAX_LEN];
+    size_t len;
   };
 #endif
 
