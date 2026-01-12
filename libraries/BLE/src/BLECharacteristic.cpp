@@ -464,6 +464,13 @@ void BLECharacteristicCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
   log_d("<< onWrite");
 }  // onWrite
 
+#if (ENABLE_DIRECT_WRITE_CALLBACK)
+void BLECharacteristicCallbacks::onWrite2(BLECharacteristic *pCharacteristic, uint8_t *data, size_t size) {
+  log_d(">> onWrite2: default");
+  log_d("<< onWrite2");
+}  // onWrite2
+#endif
+
 void BLECharacteristicCallbacks::onNotify(BLECharacteristic *pCharacteristic) {
   log_d(">> onNotify: default");
   log_d("<< onNotify");
@@ -1000,6 +1007,11 @@ int BLECharacteristic::handleGATTServerEvent(uint16_t conn_handle, uint16_t attr
         }
         rc = ble_gap_conn_find(conn_handle, &desc);
         assert(rc == 0);
+
+#if (ENABLE_DIRECT_WRITE_CALLBACK)
+        pCharacteristic->setValue(buf, len);
+        pCharacteristic->m_pCallbacks->onWrite2(pCharacteristic, buf, len);
+#else
         pCharacteristic->setValue(buf, len);
 
         // Defer the onWrite callback to maintain backwards compatibility with Bluedroid.
@@ -1023,8 +1035,9 @@ int BLECharacteristic::handleGATTServerEvent(uint16_t conn_handle, uint16_t attr
           1,    // Priority (low)
           NULL  // Task handle (not needed for one-shot task)
         );
-
+#endif
         return 0;
+
       }
 
       default: break;

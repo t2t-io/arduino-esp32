@@ -56,6 +56,7 @@
 #define ESP_GATT_CHAR_PROP_BIT_BROADCAST BLE_GATT_CHR_PROP_BROADCAST
 #define ESP_GATT_CHAR_PROP_BIT_NOTIFY    BLE_GATT_CHR_PROP_NOTIFY
 #define ESP_GATT_CHAR_PROP_BIT_INDICATE  BLE_GATT_CHR_PROP_INDICATE
+#define ENABLE_DIRECT_WRITE_CALLBACK   (1)
 #endif
 
 /***************************************************************************
@@ -335,6 +336,9 @@ public:
 #if defined(CONFIG_NIMBLE_ENABLED)
   virtual void onRead(BLECharacteristic *pCharacteristic, ble_gap_conn_desc *desc);
   virtual void onWrite(BLECharacteristic *pCharacteristic, ble_gap_conn_desc *desc);
+#if (ENABLE_DIRECT_WRITE_CALLBACK)
+  virtual void onWrite2(BLECharacteristic *pCharacteristic, uint8_t *data, size_t length);
+#endif
   virtual void onSubscribe(BLECharacteristic *pCharacteristic, ble_gap_conn_desc *desc, uint16_t subValue);
 #endif
 };
